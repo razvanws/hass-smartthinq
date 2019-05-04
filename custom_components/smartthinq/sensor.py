@@ -48,6 +48,7 @@ ATTR_TURBOSHOT_MODE = 'turboshot_mode'
 ATTR_TUBCLEAN_COUNT = 'tubclean_count'
 ATTR_LOAD_LEVEL = 'load_level'
 ATTR_DEVICE_TYPE = 'device_type'
+ATTR_RINSE_OPTION_STATE = 'rinse_option_state'
 
 WASHERRUNSTATES = {
     'OFF': wideq.STATE_WASHER_POWER_OFF,
@@ -87,22 +88,37 @@ SOILLEVELSTATES = {
 WATERTEMPSTATES = {
     'NO_SELECT': wideq.STATE_WASHER_TERM_NO_SELECT,
     'COLD' : wideq.STATE_WASHER_WATERTEMP_COLD,
+    'TWENTY' : wideq.STATE_WASHER_WATERTEMP_20,
     'THIRTY' : wideq.STATE_WASHER_WATERTEMP_30,
     'FOURTY' : wideq.STATE_WASHER_WATERTEMP_40,
     'SIXTY': wideq.STATE_WASHER_WATERTEMP_60,
     'NINTYFIVE': wideq.STATE_WASHER_WATERTEMP_95,
     'OFF': wideq.STATE_WASHER_POWER_OFF,
 
+    #'NO_SELECT': wideq.STATE_WASHER_TERM_NO_SELECT,
+    #'COLD' : wideq.STATE_WASHER_WATERTEMP_COLD,
+    #'THIRTY' : wideq.STATE_WASHER_WATERTEMP_30,
+    #'FOURTY' : wideq.STATE_WASHER_WATERTEMP_40,
+    #'SIXTY': wideq.STATE_WASHER_WATERTEMP_60,
+    #'NINTYFIVE': wideq.STATE_WASHER_WATERTEMP_95,
+    #'OFF': wideq.STATE_WASHER_POWER_OFF,
 }
 
 SPINSPEEDSTATES = {
-    'NO_SELECT': wideq.STATE_WASHER_TERM_NO_SELECT,
-    'EXTRA_LOW' : wideq.STATE_WASHER_SPINSPEED_EXTRA_LOW,
-    'LOW' : wideq.STATE_WASHER_SPINSPEED_LOW,
-    'MEDIUM' : wideq.STATE_WASHER_SPINSPEED_MEDIUM,
-    'HIGH': wideq.STATE_WASHER_SPINSPEED_HIGH,
-    'EXTRA_HIGH': wideq.STATE_WASHER_SPINSPEED_EXTRA_HIGH,
+    'NOSPIN': wideq.STATE_WASHER_SPINSPEED_NOSPIN,
+    'SPIN_400' : wideq.STATE_WASHER_SPINSPEED_400,
+    'SPIN_800' : wideq.STATE_WASHER_SPINSPEED_800,
+    'SPIN_1000' : wideq.STATE_WASHER_SPINSPEED_1000,
+    'SPIN_1200': wideq.STATE_WASHER_SPINSPEED_1200,
+    'SPIN_1400': wideq.STATE_WASHER_SPINSPEED_1400,
     'OFF': wideq.STATE_WASHER_POWER_OFF,
+    #'NO_SELECT': wideq.STATE_WASHER_TERM_NO_SELECT,
+    #'EXTRA_LOW' : wideq.STATE_WASHER_SPINSPEED_EXTRA_LOW,
+    #'LOW' : wideq.STATE_WASHER_SPINSPEED_LOW,
+    #'MEDIUM' : wideq.STATE_WASHER_SPINSPEED_MEDIUM,
+    #'HIGH': wideq.STATE_WASHER_SPINSPEED_HIGH,
+    #'EXTRA_HIGH': wideq.STATE_WASHER_SPINSPEED_EXTRA_HIGH,
+    #'OFF': wideq.STATE_WASHER_POWER_OFF,
 }
 
 RINSECOUNTSTATES = {
@@ -113,6 +129,11 @@ RINSECOUNTSTATES = {
     'FOUR': wideq.STATE_WASHER_RINSECOUNT_4,
     'FIVE': wideq.STATE_WASHER_RINSECOUNT_5,
     'OFF': wideq.STATE_WASHER_POWER_OFF,
+}
+
+RINSEOPTIONSTATES = {
+    'NORMAL': wideq.STATE_WASHER_RINSE_NORMAL,
+    'EXTRA_RINSE': wideq.STATE_WASHER_EXTRA_RINSE
 }
 
 DRYLEVELSTATES = {
@@ -393,6 +414,7 @@ class LGEWASHERDEVICE(LGEDevice):
         data[ATTR_TURBOSHOT_MODE] = self.turboshot_mode
         data[ATTR_TUBCLEAN_COUNT] = self.tubclean_count
         data[ATTR_LOAD_LEVEL] = self.load_level
+        data[ATTR_RINSE_OPTION_STATE] = self.rinse_option_state
         return data
 
     @property
@@ -454,7 +476,7 @@ class LGEWASHERDEVICE(LGEDevice):
             if course == '다운로드코스':
                 return smartcourse
             elif course == 'OFF':
-                return '꺼짐'
+                return 'Off'
             else:
                 return course
 
@@ -473,6 +495,12 @@ class LGEWASHERDEVICE(LGEDevice):
                 return SOILLEVELSTATES['OFF']
             else:
                 return SOILLEVELSTATES[wash_option.name]
+
+    @property
+    def rinse_option_state(self):
+        if self._state:
+            rinse_option = self._state.rinse_option_state
+            return RINSEOPTIONSTATES[rinse_option.name]
 
     @property
     def spin_option_state(self):
@@ -544,15 +572,15 @@ class LGEWASHERDEVICE(LGEDevice):
         if self._state:
             load_level = self._state.load_level
             if load_level == 1:
-                return '소량'
+                return 'Small'
             elif load_level == 2:
-                return '적음'
+                return 'Medium'
             elif load_level == 3:
-                return '보통'
+                return 'Large'
             elif load_level == 4:
-                return '많음'
+                return 'Extra large'
             else:
-                return '없음'
+                return 'Unknown'
 
     def update(self):
 
